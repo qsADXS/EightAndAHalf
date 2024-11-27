@@ -52,12 +52,13 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
+# 对象存储
+# todo 需替换配置
 cos:
   client:
-    accessKey: AKIDSoErbMrNvOhw9JtPo7JPLE0kbcnH1lQw
-    secretKey: qhh0Faq1OgmhVEpHfsvvsdI1qhXQRTmL
+    accessKey: 666
+    secretKey: 666
     region: ap-shanghai
-    bucket: linbei-1326669563
-
+    bucket: 666
 server:
   port: 8082
