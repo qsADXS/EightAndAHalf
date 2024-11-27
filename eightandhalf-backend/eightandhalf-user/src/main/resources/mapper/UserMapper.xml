@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.eh.user.mapper.UserMapper">
+
+    <select id="getUser" resultType="com.eh.user.model.entity.User">
+        select * from users
+        <where>
+            <if test="username!=null">
+                user_name = #{username}
+            </if>
+        </where>
+    </select>
+
+    <select id="getUserByEmail" resultType="com.eh.user.model.entity.User">
+        select * from users
+        <where>
+            <if test="email!=null">
+                email = #{email}
+            </if>
+        </where>
+    </select>
+
+    <insert id="register" parameterType="com.eh.user.model.entity.User">
+        insert into `EightandHalf-user`.users
+            (user_id, password, user_name, email, created_at, updated_at, deleted_at, is_singer, identity)
+        VALUES(#{userId},MD5(#{password}),#{userName},#{email},#{createdAt},#{updatedAt},#{deletedAt},#{isSinger},#{identity})
+    </insert>
+
+    <select id="getUserById" resultType="com.eh.user.model.entity.User">
+        select * from `EightandHalf-user`.users
+        <where>
+            <if test="id!=null">
+                user_id = #{id}
+            </if>
+        </where>
+    </select>
+
+
+    <update id="updateUser" parameterType="com.eh.user.model.entity.User">
+        <if test="avatarUrl != null or qrcode != null or secret != null">
+            update `EightandHalf-user`.users
+            <set>
+                <if test="avatarUrl!=null">avatar_url = #{avatarUrl},</if>
+                <if test="qrcode!=null">qrcode = #{qrcode},</if>
+                <if test="secret!=null">secret = #{secret},</if>
+                <if test="updatedAt!=null">updated_at = #{updatedAt}</if>
+            </set>
+            where user_id = #{userId}
+        </if>
+    </update>
+
+    <select id="selectUsersByIds" resultType="com.eh.user.model.entity.User">
+        SELECT *
+        FROM users
+        WHERE user_id IN
+        <foreach item="id" collection="userIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  eightandhalf-gateway:
+    container_name: eightandhalf-gateway
+    build:
+      context: ./eightandhalf-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - cnetwork
+
+
+  user-service:
+    container_name: user-service
+    build:
+      context: ./eightandhalf-user
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - cnetwork
+    depends_on:
+      - eightandhalf-gateway
+
+  music-service1:
+    container_name: music-service1
+    build:
+      context: ./eightandhalf-music
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    networks:
+      - cnetwork
+    depends_on:
+      - eightandhalf-gateway
+
+  music-service2:
+    container_name: music-service2
+    build:
+      context: ./eightandhalf-music
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    networks:
+      - cnetwork
+    depends_on:
+      - eightandhalf-gateway
+
+  community-service:
+    container_name: community-service
+    build:
+      context: ./eightandhalf-community
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    networks:
+      - cnetwork
+    depends_on:
+      - eightandhalf-gateway
+      - user-service
+      - music-service1
+      - music-service2
+
+  chat-service:
+    container_name: chat-service
+    build:
+      context: ./eightandhalf-chat
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+      - "8889:8889"
+    networks:
+      - cnetwork
+    depends_on:
+      - eightandhalf-gateway
+      - user-service
+
+
+networks:
+  cnetwork:

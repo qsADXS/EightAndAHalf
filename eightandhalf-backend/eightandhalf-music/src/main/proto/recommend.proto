@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package com.eh.music.grpc;
+option java_package = "com.eh.music.grpc"; // 设置生成的 Java 包路径
+//ip: 43.138.152.89:9090
+// The service definition.
+service Recommend {
+    rpc GetMusic (RecommendRequest) returns (RecommendReply) {}
+    rpc UploadMusic (stream UploadMusicRequest) returns (UploadMusicReply);
+}
+
+// GetMusic message
+message RecommendRequest {
+    string userId = 1;
+}
+message RecommendReply {
+    repeated string musicId = 1;
+}
+
+// UploadMusic message
+message UploadMusicRequest {
+    string musicId = 1;
+    bytes chunk = 2;
+}
+message UploadMusicReply {
+    bool success = 1;
+    string message = 2;
+}

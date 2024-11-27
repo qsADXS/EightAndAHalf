@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.eh.community.mapper.CommunityMapper">
+
+    <insert id="createBlog" parameterType="com.eh.community.model.entity.Blog">
+        insert into `EightandHalf-community`.blogs
+            (blog_id, user_id, like_count, blog_content, url, music_id, comment_count, created_at, updated_at, deleted_at, title)
+        VALUES(#{blogId},#{userId},#{likeCount},#{blogContent},#{url},#{musicId},#{commentCount},#{createdAt},#{updatedAt},#{deletedAt},#{title})
+    </insert>
+
+    <select id="getBlogsByUid"  resultType="com.eh.community.model.entity.Blog">
+        select * from `EightandHalf-community`.blogs
+            where  user_id = #{user_id} order by created_at desc
+    </select>
+
+    <delete id="deleteBlogByBlogId" parameterType="java.lang.Long">
+        DELETE FROM `EightandHalf-community`.blogs
+        WHERE blog_id = #{blog_id}
+    </delete>
+
+    <select id="getBlogsByUidAndBlogId" resultType="com.eh.community.model.entity.Blog">
+        select * from `EightandHalf-community`.blogs
+            where user_id = #{user_id} and blog_id = #{blog_id}
+    </select>
+
+    <select id="getBlogsByBlogId" resultType="com.eh.community.model.entity.Blog">
+        select * from `EightandHalf-community`.blogs
+            where blog_id = #{blog_id}
+    </select>
+
+    <insert id="createRelation" parameterType="com.eh.community.model.entity.Relation">
+        insert into `EightandHalf-community`.relations
+            (user_id, follower_user_id)
+        values(#{userId}, #{followerUserId})
+    </insert>
+
+    <select id="getFollowersByUid" resultType="com.eh.community.model.entity.Relation">
+        select * from `EightandHalf-community`.relations
+        where user_id = #{user_id} limit #{page_size} offset #{page_num}
+    </select>
+
+    <select id="getFollowersListByUid" resultType="com.eh.community.model.entity.Relation">
+        SELECT * FROM `EightandHalf-community`.relations
+        WHERE user_id = #{user_id}
+    </select>
+    <select id="getFollowersCountByUid" resultType="int">
+        SELECT COUNT(*)  FROM `EightandHalf-community`.relations
+        WHERE user_id = #{user_id}
+    </select>
+
+
+    <select id="getFollowingListByUid" resultType="com.eh.community.model.entity.Relation">
+        select * from `EightandHalf-community`.relations
+        where follower_user_id = #{follower_user_id}
+    </select>
+
+    <select id="getFollowingCountByUid" resultType="int">
+        select COUNT(*) from `EightandHalf-community`.relations
+        where follower_user_id = #{user_id}
+    </select>
+
+    <select id="getFollowingsByUid" resultType="com.eh.community.model.entity.Relation">
+        SELECT * FROM `EightandHalf-community`.relations
+        WHERE follower_user_id IN
+        <foreach item="id"  collection="userIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <delete id="deleteRelation" parameterType="com.eh.community.model.entity.Relation">
+        DELETE FROM `EightandHalf-community`.relations
+        WHERE user_id = #{userId} and follower_user_id = #{followerUserId}
+    </delete>
+
+    <select id="getFollowByUidAndFid" resultType="com.eh.community.model.entity.Relation">
+        select * from `EightandHalf-community`.relations
+        where user_id = #{userId} and follower_user_id = #{followerUserId}
+    </select>
+
+
+
+
+
+
+    <insert id="createComment" parameterType="com.eh.community.model.entity.Comment">
+        insert into `EightandHalf-community`.comments
+         (comment_id, user_id, music_id, parent_id, like_count, child_count, comment_content, created_at, updated_at, deleted_at, blog_id)
+        values (#{commentId}, #{userId}, #{musicId}, #{parentId}, #{likeCount}, #{childCount}, #{commentContent}, #{createdAt}, #{updatedAt}, #{deletedAt}, #{blogId})
+    </insert>
+
+    <select id="getCommentByCid" resultType="com.eh.community.model.entity.Comment">
+        select * from `EightandHalf-community`.comments
+        where comment_id = #{commentId}
+    </select>
+
+    <update id="incrCommentCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.comments
+        SET like_count = like_count + 1
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <delete id="deleteComment" parameterType="java.lang.Long" >
+        delete from `EightandHalf-community`.comments
+        where comment_id = #{commentId}
+    </delete>
+
+   <insert id="createLike" parameterType="com.eh.community.model.entity.Like">
+       insert into `EightandHalf-community`.likes
+        (user_id, comment_id, blog_id)
+       values (#{userId}, #{commentId}, #{blogId})
+   </insert>
+
+    <update id="incrCommentLikeCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.comments
+        SET like_count = like_count + 1
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="incrBlogLikeCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.blogs
+        SET like_count = like_count + 1
+        WHERE blog_id = #{blogId}
+    </update>
+
+    <delete id="deleteLikeInComment" parameterType="com.eh.community.model.entity.Like">
+        delete from `EightandHalf-community`.likes
+        where user_id = #{userId} and comment_id = #{commentId}
+    </delete>
+
+    <delete id="deleteAllLikeInComment" parameterType="com.eh.community.model.entity.Like">
+        delete from `EightandHalf-community`.likes
+        where  comment_id = #{commentId}
+    </delete>
+
+
+    <delete id="deleteLikeInBlog" parameterType="com.eh.community.model.entity.Like">
+        delete from `EightandHalf-community`.likes
+        where user_id = #{userId} and blog_id = #{blogId}
+    </delete>
+
+    <delete id="deleteAllLikeInBlog" parameterType="java.lang.Long">
+        delete from `EightandHalf-community`.likes
+        where  blog_id = #{blogId}
+    </delete>
+
+    <update id="decrCommentLikeCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.comments
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="decrBlogLikeCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.blogs
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE blog_id = #{blogId}
+    </update>
+
+    <select id="getUserLikeByCid" resultType="com.eh.community.model.entity.Like">
+        select * from `EightandHalf-community`.likes
+        where comment_id = #{commentId} and user_id = #{userId}
+    </select>
+
+    <select id="getUserLikeByBid" resultType="com.eh.community.model.entity.Like">
+        select * from `EightandHalf-community`.likes
+        where blog_id = #{blogId} and user_id = #{userId}
+    </select>
+
+    <select id="getCommentsByCid" resultType="com.eh.community.model.entity.Comment">
+        select * from `EightandHalf-community`.comments
+        where parent_id = #{parentId}
+    </select>
+
+    <select id="getCommentsByMusicId" resultType="com.eh.community.model.entity.Comment">
+        select * from `EightandHalf-community`.comments
+        where music_id = #{musicId}
+    </select>
+
+    <select id="getCommentsByBlogId" resultType="com.eh.community.model.entity.Comment">
+        select * from `EightandHalf-community`.comments
+        where blog_id = #{blogId}
+    </select>
+
+
+    <update id="incrParentCommentCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.comments
+        SET child_count = child_count + 1
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="decrParentCommentCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.comments
+        SET child_count = GREATEST(0, child_count - 1)
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="incrBlogCommentCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.blogs
+        SET comment_count = comment_count + 1
+        WHERE blog_id = #{blogId}
+    </update>
+
+    <update id="decrBlogCommentCount" parameterType="java.lang.Long">
+        UPDATE `EightandHalf-community`.blogs
+        SET comment_count = GREATEST(comment_count -1, 0)
+        WHERE blog_id = #{blogId}
+    </update>
+
+
+
+</mapper>

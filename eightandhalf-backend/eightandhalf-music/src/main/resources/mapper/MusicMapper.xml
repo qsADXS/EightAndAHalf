@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.eh.music.mapper.MusicMapper">
+    <insert id="insertUploadMusic" parameterType="com.eh.music.model.entity.Music">
+        insert into music
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="musicId != null">
+                music_id,
+            </if>
+            <if test="musicUrl != null">
+                music_url,
+            </if>
+            <if test="coverUrl != null">
+                cover_url,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="author != null">
+                author,
+            </if>
+            <if test="musicName != null">
+                music_name,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="subscribeCount != null">
+                subscribe_count,
+            </if>
+            <if test="commentCount != null">
+                comment_count,
+            </if>
+            <if test="visitCount != null">
+                visit_count,
+            </if>
+            <if test="musicCategory != null">
+                music_category,
+            </if>
+            <if test="createdAt != null">
+                created_at,
+            </if>
+            <if test="updatedAt != null">
+                updated_at,
+            </if>
+            <if test="deletedAt != null">
+                deleted_at,
+            </if>
+            <if test="album != null">
+                album,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="musicId != null">
+                #{musicId},
+            </if>
+            <if test="musicUrl != null">
+                #{musicUrl},
+            </if>
+            <if test="coverUrl != null">
+                #{coverUrl},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="author != null">
+                #{author},
+            </if>
+            <if test="musicName != null">
+                #{musicName},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="subscribeCount != null">
+                #{subscribeCount},
+            </if>
+            <if test="commentCount != null">
+                #{commentCount},
+            </if>
+            <if test="visitCount != null">
+                #{visitCount},
+            </if>
+            <if test="musicCategory != null">
+                #{musicCategory},
+            </if>
+            <if test="createdAt != null">
+                #{createdAt},
+            </if>
+            <if test="updatedAt != null">
+                #{updatedAt},
+            </if>
+            <if test="deletedAt != null">
+                #{deletedAt},
+            </if>
+            <if test="album != null">
+                #{album},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectUploadMusicForPage" parameterType="map" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+            m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+            m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+            m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+            m.album as album
+        from music m
+        where
+            user_id = #{userId}
+        order by m.created_at desc
+        limit
+            #{beginNo}, #{pageSize}
+    </select>
+
+    <select id="selectCountOfUploadMusic" parameterType="long" resultType="int">
+        select
+            count(*)
+        from music m
+        where
+            user_id = #{userId}
+    </select>
+
+    <select id="selectAllMusicCategory" resultType="com.eh.music.model.entity.MusicCategory">
+        select
+            dic_id as dicId, value as value
+        from dictionary
+        where
+            type_code = 'musicCategory'
+        order by order_no asc
+    </select>
+
+    <select id="selectPlaylistByUserId" parameterType="map" resultType="com.eh.music.model.entity.UserPlaylist">
+        select
+            up.playlist_id as playlistId, up.user_id as userId, p.playlist_name as playlistName, p.playlist_cover_url as playlistCoverUrl,
+            p.playlist_type as playlistType, p.description as description, p.created_at as createdAt, p.updated_at as updatedAt, p.deleted_at as deletedAt
+        from user_playlists up
+        join playlists p on up.playlist_id = p.playlist_id
+        <where>
+            up.user_id = #{userId}
+            and p.playlist_type = 0
+            <if test="isPublic != null">
+                and up.is_public = 1
+            </if>
+            <if test="relationshipType != null">
+                and up.relationship_type = #{relationshipType}
+            </if>
+        </where>
+        order by p.created_at asc
+    </select>
+
+    <select id="selectPlaylistInfoByPlaylistId" parameterType="long" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+            m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+            m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+            m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+            m.album as album
+        from playlist_music pm
+        join music m on pm.music_id = m.music_id
+        where
+            pm.playlist_id = #{playlistId}
+        order by pm.created_at desc
+    </select>
+    <insert id="insertMusicIntoPlaylist" parameterType="com.eh.music.model.request.SubscribeMusicRequest">
+        insert into playlist_music
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="playlistId != null">
+            playlist_id,
+        </if>
+        <if test="musicId != null">
+            music_id,
+        </if>
+        <if test="createdAt != null">
+            created_at,
+        </if>
+            listen_count
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="playlistId != null">
+                #{playlistId},
+            </if>
+            <if test="musicId != null">
+                #{musicId},
+            </if>
+            <if test="createdAt != null">
+                #{createdAt},
+            </if>
+            0
+        </trim>
+    </insert>
+
+    <insert id="insertPlaylist" parameterType="com.eh.music.model.entity.Playlist">
+        insert into playlists
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="playlistId != null">
+                playlist_id,
+            </if>
+            <if test="playlistName != null">
+                playlist_name,
+            </if>
+            <if test="playlistCoverUrl != null">
+                playlist_cover_url,
+            </if>
+            <if test="playlistType != null">
+                playlist_type,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="createdAt != null">
+                created_at,
+            </if>
+            <if test="updatedAt != null">
+                updated_at,
+            </if>
+            <if test="deletedAt != null">
+                deleted_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="playlistId != null">
+                #{playlistId},
+            </if>
+            <if test="playlistName != null">
+                #{playlistName},
+            </if>
+            <if test="playlistCoverUrl != null">
+                #{playlistCoverUrl},
+            </if>
+            <if test="playlistType != null">
+                #{playlistType},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="createdAt != null">
+                #{createdAt},
+            </if>
+            <if test="updatedAt != null">
+                #{updatedAt},
+            </if>
+            <if test="deletedAt != null">
+                #{deletedAt},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertUserPlaylistRelation" parameterType="map">
+        insert into user_playlists
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="playlistId != null">
+                playlist_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="relationshipType != null">
+                relationship_type,
+            </if>
+            <if test="isPublic != null">
+                is_public,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="playlistId != null">
+                #{playlistId},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="relationshipType != null">
+                #{relationshipType},
+            </if>
+            <if test="isPublic != null">
+                #{isPublic},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectMusicExistPlaylist" parameterType="com.eh.music.model.request.SubscribeMusicRequest" resultType="int">
+        select count(*)
+        from playlist_music
+        where
+            playlist_id = #{playlistId} and music_id = #{musicId}
+    </select>
+
+    <select id="selectExistUserPlaylist" parameterType="map" resultType="int">
+        select count(*)
+        from user_playlists
+        where
+            playlist_id = #{playlistId} and user_id = #{userId} and relationship_type = 1
+    </select>
+
+    <delete id="deleteUserPlaylistRelation" parameterType="map" >
+        delete from user_playlists
+        where
+            playlist_id = #{playlistId} and user_id = #{userId} and relationship_type = 1
+    </delete>
+
+    <select id="selectAlbumByUserId" parameterType="map" resultType="com.eh.music.model.entity.UserPlaylist">
+        select
+        up.playlist_id as playlistId, up.user_id as userId, p.playlist_name as playlistName, p.playlist_cover_url as playlistCoverUrl,
+        p.playlist_type as playlistType, p.description as description, p.created_at as createdAt, p.updated_at as updatedAt, p.deleted_at as deletedAt
+        from user_playlists up
+        join playlists p on up.playlist_id = p.playlist_id
+        <where>
+            up.user_id = #{userId}
+            and p.playlist_type = 1
+            <if test="isPublic != null">
+                and up.is_public = 1
+            </if>
+            <if test="relationshipType != null">
+                and up.relationship_type = #{relationshipType}
+            </if>
+        </where>
+        order by p.created_at asc
+    </select>
+
+    <delete id="deletePlaylistMusicByPlaylistId" parameterType="long">
+        delete from playlist_music
+        where
+            playlist_id = #{playlistId}
+    </delete>
+
+    <delete id="deleteUserPlaylistByPlaylistId" parameterType="long">
+        delete from user_playlists
+        where
+            playlist_id = #{playlistId}
+    </delete>
+
+    <delete id="deletePlaylistByPlaylistId" parameterType="long">
+        delete from playlists
+        where
+            playlist_id = #{playlistId}
+    </delete>
+
+    <delete id="deleteMusicFromPlaylist" parameterType="com.eh.music.model.request.SubscribeMusicRequest">
+        delete from playlist_music
+        where
+            playlist_id = #{playlistId} and music_id = #{musicId}
+    </delete>
+    <update id="setUserPlaylistPublicType" parameterType="map">
+        update user_playlists
+            set is_public = #{isPublic}
+            where user_id = #{userId}
+    </update>
+    <update id="addPlaylistMusicSubscribeCount" parameterType="long">
+        update music
+        set subscribe_count = subscribe_count + 1
+        where
+            music_id in (
+            select music_id from playlist_music where playlist_id = #{playlistId}
+        )
+    </update>
+    <update id="reducePlaylistMusicSubscribeCount" parameterType="long">
+        update music
+        set subscribe_count = subscribe_count - 1
+        where
+            subscribe_count >= 1 and music_id in (
+            select music_id from playlist_music where playlist_id = #{playlistId}
+        )
+    </update>
+    <update id="addMusicSubscribeCountByMusicId" parameterType="long">
+        update music
+        set subscribe_count = subscribe_count + 1
+        where
+            music_id = #{musicId}
+    </update>
+    <update id="reduceMusicSubscribeCountByMusicId" parameterType="long">
+        update music
+        set subscribe_count = subscribe_count - 1
+        where
+            music_id = #{musicId}
+    </update>
+
+    <select id="selectPopularMusicInfo" parameterType="int" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+        m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+        m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+        m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+        m.album as album
+        from music m
+        order by m.subscribe_count desc
+        limit 0, #{num}
+    </select>
+
+    <select id="selectSpecialPlaylistByName" parameterType="map" resultType="long">
+        select p.playlist_id
+        from playlists p
+        join user_playlists up on p.playlist_id = up.playlist_id
+        where
+            up.user_id = #{userId}
+        and
+            p.playlist_name = #{playlistName}
+        and
+            up.relationship_type = 0;
+    </select>
+
+    <update id="updateRecentListenTime" parameterType="map" >
+        update playlist_music
+        set created_at = #{createdAt},
+        listen_count = listen_count + 1
+        where
+            playlist_id = #{playlistId}
+        and
+            music_id = #{musicId}
+    </update>
+
+    <select id="selectMusicInfoByMusicIdList" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+        m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+        m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+        m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+        m.album as album
+        from music m
+        where
+        m.music_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectRecentPlaylistInfoPlaylistId" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+        m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+        m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+        m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+        m.album as album, pm.listen_count as listenCount
+        from playlist_music pm
+        join music m on pm.music_id = m.music_id
+        where
+        pm.playlist_id = #{playlistId}
+        order by pm.created_at desc
+    </select>
+
+    <update id="updateCommentCountByMusicId" parameterType="long" >
+        update music
+        set comment_count = comment_count + 1
+        where
+            music_id = #{musicId}
+    </update>
+
+    <update id="updateVisitCountByMusicId" parameterType="long">
+        update music
+        set visit_count = visit_count + 1
+        where
+        music_id = #{musicId}
+    </update>
+
+    <select id="selectHomePagePlaylist" resultType="com.eh.music.model.entity.UserPlaylist">
+        select
+        up.playlist_id as playlistId, up.user_id as userId, p.playlist_name as playlistName, p.playlist_cover_url as playlistCoverUrl,
+        p.playlist_type as playlistType, p.description as description, p.created_at as createdAt, p.updated_at as updatedAt, p.deleted_at as deletedAt
+        from user_playlists up
+        join playlists p on up.playlist_id = p.playlist_id
+        where
+            p.playlist_name like '%热门%'
+        and up.user_id = '334452552022233088'
+        order by p.created_at asc
+        limit 0, #{limit}
+    </select>
+
+    <select id="selectSubscribePlaylistInfoPlaylistId" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+        m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+        m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+        m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+        m.album as album
+        from playlist_music pm
+        join music m on pm.music_id = m.music_id
+        where
+        pm.playlist_id = #{playlistId}
+        order by pm.created_at desc
+    </select>
+
+    <select id="getMusicInfoById" resultType="com.eh.music.model.entity.MusicInfo">
+        select
+        m.music_id as musicId, m.music_url as musicUrl, m.cover_url as coverUrl, m.user_id as userId, m.author as author,
+        m.music_name as musicName, m.description as description, m.subscribe_count as subscribeCount, m.comment_count as commentCount,
+        m.visit_count as visitCount, m.music_category as musicCategory, m.created_at as createdAt, m.updated_at as updatedAt, m.deleted_at as deletedAt,
+        m.album as album
+        from music m
+        where
+         m.music_id = #{musicId}
+    </select>
+
+    <update id="decrCommentCountByMusicId" parameterType="long" >
+        update music
+        set comment_count = GREATEST(0, comment_count - 1)
+        where
+        music_id = #{musicId}
+    </update>
+
+    <select id="selectPlaylistByPlaylistId" parameterType="long" resultType="com.eh.music.model.entity.UserPlaylist" >
+        select
+        up.playlist_id as playlistId, up.user_id as userId, p.playlist_name as playlistName, p.playlist_cover_url as playlistCoverUrl,
+        p.playlist_type as playlistType, p.description as description, p.created_at as createdAt, p.updated_at as updatedAt, p.deleted_at as deletedAt
+        from user_playlists up
+        join playlists p on up.playlist_id = p.playlist_id
+        where
+            up.playlist_id = #{playlistId}
+        and
+            up.relationship_type = 0
+    </select>
+
+    <select id="getAllmusic" resultType="com.eh.music.model.entity.Music">
+        select * from `EightandHalf-music`.music
+    </select>
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=绑定一个对应的Dao/Mapper接口-->
+<mapper namespace="com.eh.chat.mapper.ChatMapper">
+
+    <insert id="saveContent" parameterType="com.eh.chat.model.entity.ChatMessage">
+        insert into `EightandHalf-chat`.chat_messages(chat_messages.message_id,user_id,to_user_id,message_content,created_at,is_transfer_music,is_offline)
+        values (#{messageId},#{userId},#{toUserId},#{messageContent},#{createdAt},#{isTransferMusic},#{isOffline})
+    </insert>
+
+    <insert id="blockUser">
+        insert into `EightandHalf-chat`.blacklists (user_id, block_user_id)
+        VALUES
+        (#{id},#{blockId})
+    </insert>
+
+    <select id="isBlocked" resultType="int">
+        SELECT EXISTS(
+            SELECT 1 FROM `EightandHalf-chat`.blacklists
+            WHERE user_id = #{to} AND block_user_id = #{from}
+        )
+    </select>
+
+
+    <select id="getMessageRecord" resultType="com.eh.chat.model.entity.ChatMessage">
+        select message_id, user_id, to_user_id, message_content, created_at, is_transfer_music, is_offline from `EightandHalf-chat`.chat_messages
+        WHERE ((user_id = #{id} AND to_user_id = #{userId})
+        OR (user_id = #{userId} AND to_user_id = #{id}))
+        <!-- 如果传入了日期，增加日期筛选条件 -->
+        <if test="date != null">
+            AND DATE(created_at) = #{date}
+        </if>
+        <if test="isOffline != null">
+            AND is_offline = #{isOffline}
+        </if>
+        ORDER BY created_at
+    </select>
+
+    <select id="getOfflineMessage" resultType="com.eh.chat.model.entity.ChatMessage">
+        select message_id, user_id, to_user_id, message_content, created_at, is_transfer_music, is_offline from `EightandHalf-chat`.chat_messages
+        <where>
+            <if test="id!=null">
+                to_user_id = #{id}
+            </if>
+            <if test="isOffline!=null">
+                and is_offline = #{isOffline}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateOfflineMsg">
+        update `EightandHalf-chat`.chat_messages set is_offline = 0 where to_user_id = #{id}
+    </update>
+
+</mapper>

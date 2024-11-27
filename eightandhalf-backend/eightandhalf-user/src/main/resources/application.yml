@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: user-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://ip:3306/EightandHalf-user?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: root
+    password: czh888888
+  redis:
+    host: ip
+    port: 6379
+    connect-timeout: 5000
+  rabbitmq:
+    host: ip
+    port: 5672
+    username: linbei
+    password: 888888
+    template:
+      retry:
+        enabled: true # 开启超时重试机制
+        initial-interval: 1000ms # 失败后的初始等待时间
+        multiplier: 1 # 失败后下次的等待时长倍数，下次等待时长 = initial-interval * multiplier
+        max-attempts: 3 # 最大重试次数
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 1
+        #retry机制[注意:所有重试结束，消息无论是否被成功消费，都会被MQ丢弃(最后消费端返回reject)]
+        retry:
+          enabled: true # 开启消费者失败重试
+          initial-interval: 1000 # 第一次失败等待时长
+          multiplier: 2 # 后续失败的等待时长倍率。即若倍率为2，第一次等1s再试，第二次则2s，第三次则4s
+          max-attempts: 3 #最大重试次数
+          stateless: true # 是否设置为无状态，true即无状态，false为有状态，作用即是否保持原状态，开启事务情况下要改为false，保持事务状态
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ip:8848
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
+logging:
+  level:
+    com.memo: debug
+
+mybatis:
+  type-aliases-package: com.eh.user.model.entity
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# 对象存储
+# todo 需替换配置
+cos:
+  client:
+    accessKey: AKIDSoErbMrNvOhw9JtPo7JPLE0kbcnH1lQw
+    secretKey: qhh0Faq1OgmhVEpHfsvvsdI1qhXQRTmL
+    region: ap-shanghai
+    bucket: linbei-1326669563
+
+server:
+  port: 8081

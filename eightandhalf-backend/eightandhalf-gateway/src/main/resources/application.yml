@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      server-addr: ip:8848
+    gateway:
+      globalcors:
+        # 是否将当前cors配置加入到SimpleUrlHandlerMapping中，解决options请求被拦截问题
+        add-to-simple-url-handler-mapping: true
+        # cors配置
+        cors-configurations:
+          # 拦截所有
+          '[/**]':
+            allowed-origin-patterns: "*"
+            # 允许哪些网站的跨域请求（尽量使用域名）
+
+            allowedMethods: # 允许的的请求方式（*表示全部）
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*"        # 允许在请求中携带的头信息（*表示全部）
+            allowCredentials: true        # 是否允许携带cookie
+            maxAge: 360000                # 跨域检测的有效期
+      routes: # 网关路由配置
+        - id: user-service # 路由id，自定义，只要唯一即可
+          # uri: http://127.0.0.1:8081 # 路由的目标地址 http就是固定地址
+          uri: lb://user-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
+          predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
+            - Path=/user/** # 这个是按照路径匹配，只要以/user/开头就符合要求
+        - id: music-service
+          uri: lb://music-service
+          predicates:
+            - Path=/music/**
+        - id: community-service
+          uri: lb://community-service
+          predicates:
+            - Path=/community/**
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/chat/**
+
+server:
+  port: 8080
+
+memo:
+  auth:
+    exclude-paths:
+      - /user/register
+      - /user/login
+      - /user/refresh
+      - /user/login/email
+      - /user/login/email/code
+      - /music/home/list
+      - /music/popular/rank
