@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailUtil {
     private static final String HOST = "smtp.126.com";
     private static final String PORT = "465";
-    private static final String USERNAME = "EightAndHalf@126.com";
-    private static final String PASSWORD = "PFahi33iwkxkixmd"; // 授权码
+    private static final String USERNAME = "email";
+    private static final String PASSWORD = "code"; // 授权码
 
     //指定邮箱，主题和内容
     public static void sendEmail(String toEmail, String subject, String content) {
